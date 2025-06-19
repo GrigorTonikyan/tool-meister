@@ -1,0 +1,52 @@
+[package]
+name = "tool-meister"
+version = "0.1.0"
+edition = "2021"
+description = "Tool Meister is app to manage and run tools in a workspace."
+default-run = "tool-meister"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+clap = { version = "4.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+toml = "0.8"
+
+[dev-dependencies]
+tempfile = "3.0"
+assert_cmd = "2.0"
+predicates = "3.0"
+
+# Test configuration for easier development
+[[bin]]
+name = "tool-meister"
+path = "src/main.rs"
+
+[build-dependencies]
+toml = "0.8"
+serde_json = "1.0"
+
+[package.metadata.settings.defaults]
+# app configuration
+# note <[package.name]> will be replaced with the actual package name at build time
+# if XDG_CONFIG_HOME and HOME are both missing or empty, the app will use the current directory
+app_config_path = [
+    "$XDG_CONFIG_HOME/<[package.name]>",
+    "$HOME/.config/<[package.name]>",
+    "./",
+] # falling back in array order
+config_file_name = "config.toml"
+# manifest sources
+manifests_dir = "<[package.metadata.settings.defaults.app_config_path]>/manifests"
+# tools aka managed applications
+# every managed tool's/app's final ready to be consumed binary (build output) will be placed here
+# inside its own directory named after the tool.  
+tools_dir = [
+    "$XDG_DATA_HOME/tools",
+    "$HOME/tools",
+    "./tools",
+] # falling back in array order
+# sources of tools (e.g. git repositories, archives, source data etc.)
+# if tool is ready to be consumed it will be placed in tools_dir/<tool_name> skipping this directory
+tools_sources_path = "<[package.metadata.settings.defaults.tools_dir]>/sources"

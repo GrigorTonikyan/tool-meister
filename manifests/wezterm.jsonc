@@ -1,0 +1,78 @@
+{
+  "repo": {
+    "name": "wezterm",
+    "url": "https://github.com/wez/wezterm",
+    "default_branch": {
+      "name": "main"
+    }
+  },
+  "info_args": [
+    "--help",
+    "-h",
+    "--version",
+    "-V",
+    "help",
+    "ls-fonts",
+    "show-keys"
+  ],
+  "dependencies": [
+    {
+      "name": "git",
+      "version": "2.40.1",
+      "url": "https://git-scm.com/"
+    },
+    {
+      "name": "rust",
+      "version": "1.70.0",
+      "url": "https://www.rust-lang.org/"
+    },
+    {
+      "name": "cargo",
+      "version": "1.70.0",
+      "url": "https://www.rust-lang.org/"
+    }
+  ],
+  "actions": {
+    "installation": [
+      {
+        "seq-id": 1,
+        "name": "get-repo",
+        "command": "git clone [[repo.url]]",
+        "description": "clone [[repo.name]] repository"
+      }
+    ],
+    "update": [
+      {
+        "seq-id": 1,
+        "command": "git pull",
+        "description": "update [[repo.name]] repository"
+      },
+      {
+        "seq-id": 2,
+        "command": "git submodule update --init --recursive",
+        "description": "update submodules for [[repo.name]]"
+      },
+      {
+        "seq-id": 3,
+        "command": "./get-deps",
+        "description": "get dependencies for [[repo.name]]"
+      }
+    ],
+    "build": [
+      {
+        "seq-id": 3,
+        "command": "cargo build --release",
+        "description": "build [[repo.name]]"
+      }
+    ],
+
+    "run": [
+      {
+        "seq-id": 5,
+        "command": "./target/release/wezterm",
+        "description": "run [[repo.name]]",
+        "spawn": true
+      }
+    ]
+  }
+}

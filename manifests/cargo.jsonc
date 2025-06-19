@@ -1,0 +1,18 @@
+// this is just a sketch of an idea do not use it yet
+{
+  "type": "tool",
+  "name": "Cargo",
+  "deps": ["rustup"],
+
+  "capabilities": {
+    "description": "this sections contains actions for the cargo tool provides",
+    "actions": {
+      "installation": [
+        {
+          "name": "install",
+          "command": "cargo install --path ."
+        }
+      ]
+    }
+  }
+}
