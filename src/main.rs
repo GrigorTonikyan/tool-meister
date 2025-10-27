@@ -3,6 +3,7 @@ use std::{env, path::PathBuf};
 
 mod commands;
 mod config;
+mod error;
 mod global_config;
 
 use config::Config;
@@ -93,7 +94,7 @@ enum ManifestCommands {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> crate::error::Result<()> {
     let cli = Cli::parse();
     let global_config = GlobalConfig::load()?;
 
@@ -105,7 +106,7 @@ async fn main() -> anyhow::Result<()> {
     match cli.command {
         Commands::Install { tool } => {
             let config = load_tool_config(&global_config, &config_dir, &tool)?;
-            commands::install(&config, &global_config).await?;
+            commands::install::install_command(&config, &global_config).await?;
             println!(
                 "✅ Installation of {} completed successfully!",
                 config.repo.name
@@ -113,12 +114,12 @@ async fn main() -> anyhow::Result<()> {
         }
         Commands::Update { tool } => {
             let config = load_tool_config(&global_config, &config_dir, &tool)?;
-            commands::update(&config, &global_config).await?;
+            commands::update::update_command(&config, &global_config).await?;
             println!("✅ Update of {} completed successfully!", config.repo.name);
         }
         Commands::Build { tool } => {
             let config = load_tool_config(&global_config, &config_dir, &tool)?;
-            commands::build(&config, &global_config).await?;
+            commands::build::build_command(&config, &global_config).await?;
             println!("✅ Build of {} completed successfully!", config.repo.name);
         }
         Commands::Run {
@@ -128,28 +129,11 @@ async fn main() -> anyhow::Result<()> {
             args,
         } => {
             let config = load_tool_config(&global_config, &config_dir, &tool)?;
-            commands::run(&config, &args, spawn, wait, &global_config).await?;
+            commands::run::run_command(&config, &args, spawn, wait, &global_config).await?;
             println!("✅ {} execution completed!", config.repo.name);
         }
         Commands::Config { show, reset } => {
-            let config_path = GlobalConfig::get_config_path();
-
-            if reset {
-                let default_config = GlobalConfig::default();
-                default_config.save()?;
-                println!("✅ App configuration reset to defaults");
-            } else if show {
-                let config_json = serde_json::to_string_pretty(&global_config)?;
-                println!("Current app configuration:");
-                println!("{}", config_json);
-                println!("location: {}", config_path.display())
-            } else {
-                println!("App configuration file: {}", config_path.display());
-                if !config_path.exists() {
-                    global_config.save()?;
-                    println!("✅ Created default app configuration");
-                }
-            }
+            commands::config::config_command(show, reset, &global_config).await?;
         }
         Commands::Manifests(manifest_cmd) => match manifest_cmd {
             ManifestCommands::AddSource {
@@ -176,7 +160,7 @@ fn load_tool_config(
     global_config: &GlobalConfig,
     fallback_dir: &std::path::Path,
     tool_name: &str,
-) -> anyhow::Result<Config> {
+) -> crate::error::Result<Config> {
     // First try to find manifest through global config sources
     if let Some(manifest_path) = global_config.find_tool_manifest(tool_name)? {
         return Config::load_from_path(&manifest_path);
@@ -191,7 +175,7 @@ fn add_manifest_source(
     path: String,
     branch: Option<String>,
     auto_update: bool,
-) -> anyhow::Result<()> {
+) -> crate::error::Result<()> {
     // Load current config (prefer project-local if available)
     let mut config = GlobalConfig::load()?;
 
@@ -222,7 +206,7 @@ fn add_manifest_source(
     Ok(())
 }
 
-fn list_manifest_sources(global_config: &GlobalConfig) -> anyhow::Result<()> {
+fn list_manifest_sources(global_config: &GlobalConfig) -> crate::error::Result<()> {
     println!("Configured manifest sources:");
 
     if global_config.manifest_sources.is_empty() {
@@ -257,7 +241,7 @@ fn list_manifest_sources(global_config: &GlobalConfig) -> anyhow::Result<()> {
 async fn show_manifest_info(
     global_config: &GlobalConfig,
     source_filter: &Option<String>,
-) -> anyhow::Result<()> {
+) -> crate::error::Result<()> {
     println!("Manifest source information:");
 
     for (index, source) in global_config.manifest_sources.iter().enumerate() {
@@ -365,15 +349,15 @@ mod tests {
         let original_xdg = env::var("XDG_CONFIG_HOME").ok();
 
         // Set XDG_CONFIG_HOME to temporary directory
-        env::set_var("XDG_CONFIG_HOME", temp_dir.path());
+        unsafe { env::set_var("XDG_CONFIG_HOME", temp_dir.path()) };
 
         // Run the test
         test_fn();
 
         // Restore original environment
         match original_xdg {
-            Some(val) => env::set_var("XDG_CONFIG_HOME", val),
-            None => env::remove_var("XDG_CONFIG_HOME"),
+            Some(val) => unsafe { env::set_var("XDG_CONFIG_HOME", val) },
+            None => unsafe { env::remove_var("XDG_CONFIG_HOME") },
         }
     }
 
@@ -495,10 +479,12 @@ mod tests {
             );
 
             assert!(result.is_err());
-            assert!(result
-                .unwrap_err()
-                .to_string()
-                .contains("Path does not exist"));
+            assert!(
+                result
+                    .unwrap_err()
+                    .to_string()
+                    .contains("Path does not exist")
+            );
         });
     }
 
@@ -523,10 +509,12 @@ mod tests {
                 add_manifest_source("git".to_string(), "invalid-url".to_string(), None, true);
 
             assert!(result.is_err());
-            assert!(result
-                .unwrap_err()
-                .to_string()
-                .contains("must be a valid git URL"));
+            assert!(
+                result
+                    .unwrap_err()
+                    .to_string()
+                    .contains("must be a valid git URL")
+            );
         });
     }
 
@@ -558,10 +546,12 @@ mod tests {
             );
 
             assert!(result.is_err());
-            assert!(result
-                .unwrap_err()
-                .to_string()
-                .contains("must be a valid HTTP/HTTPS URL"));
+            assert!(
+                result
+                    .unwrap_err()
+                    .to_string()
+                    .contains("must be a valid HTTP/HTTPS URL")
+            );
         });
     }
 }

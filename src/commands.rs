@@ -1,122 +1,21 @@
+pub mod install;
+pub mod update;
+pub mod build;
+pub mod run;
+pub mod config;
 use crate::config::{Action, Config};
-use crate::global_config::GlobalConfig;
-use anyhow::{Context, Result};
+use crate::error::Result;
+use anyhow::Context;
 use std::process::Stdio;
 use tokio::process::Command;
 
-pub async fn install(config: &Config, global_config: &GlobalConfig) -> Result<()> {
-    println!("Installing {}...", config.repo.name);
 
-    // Check if repo directory already exists in the tools directory
-    let tools_dir = global_config.get_tools_directory();
-    let repo_dir = tools_dir.join(&config.repo.name);
 
-    if repo_dir.exists() {
-        println!(
-            "Repository {} already exists. Use 'update' command to update it.",
-            config.repo.name
-        );
-        return Ok(());
-    }
 
-    // Create tools directory if it doesn't exist
-    if !tools_dir.exists() {
-        std::fs::create_dir_all(tools_dir).with_context(|| {
-            format!("Failed to create tools directory: {}", tools_dir.display())
-        })?;
-    }
 
-    execute_actions(
-        config,
-        &config.actions.installation,
-        Some(tools_dir),
-        None,
-        false,
-        false,
-    )
-    .await
-}
 
-pub async fn update(config: &Config, global_config: &GlobalConfig) -> Result<()> {
-    println!("Updating {}...", config.repo.name);
 
-    let tools_dir = global_config.get_tools_directory();
-    let repo_dir = tools_dir.join(&config.repo.name);
 
-    if !repo_dir.exists() {
-        println!(
-            "Repository {} does not exist. Use 'install' command first.",
-            config.repo.name
-        );
-        return Ok(());
-    }
-
-    execute_actions(
-        config,
-        &config.actions.update,
-        Some(&repo_dir),
-        None,
-        false,
-        false,
-    )
-    .await
-}
-
-pub async fn build(config: &Config, global_config: &GlobalConfig) -> Result<()> {
-    println!("Building {}...", config.repo.name);
-
-    let tools_dir = global_config.get_tools_directory();
-    let repo_dir = tools_dir.join(&config.repo.name);
-
-    if !repo_dir.exists() {
-        println!(
-            "Repository {} does not exist. Use 'install' command first.",
-            config.repo.name
-        );
-        return Ok(());
-    }
-
-    execute_actions(
-        config,
-        &config.actions.build,
-        Some(&repo_dir),
-        None,
-        false,
-        false,
-    )
-    .await
-}
-
-pub async fn run(
-    config: &Config,
-    args: &[String],
-    force_spawn: bool,
-    force_wait: bool,
-    global_config: &GlobalConfig,
-) -> Result<()> {
-    println!("Running {}...", config.repo.name);
-
-    let tools_dir = global_config.get_tools_directory();
-    let repo_dir = tools_dir.join(&config.repo.name);
-
-    if !repo_dir.exists() {
-        println!(
-            "Repository {} does not exist. Use 'install' command first.",
-            config.repo.name
-        );
-        return Ok(());
-    }
-
-    execute_actions(
-        config,
-        &config.actions.run,
-        Some(&repo_dir),
-        Some(args),
-        force_spawn,
-        force_wait,
-    )
-    .await
-}
 
 async fn execute_actions(
     config: &Config,
@@ -212,37 +111,39 @@ async fn execute_actions(
                 );
             } else {
                 // Wait mode: show output and wait for completion
-                cmd.stdout(Stdio::inherit())
-                    .stderr(Stdio::inherit())
-                    .stdin(Stdio::inherit());
+                
 
-                let status = cmd
-                    .status()
+                let output = cmd
+                    .output()
                     .await
                     .with_context(|| format!("Failed to execute command: {}", full_command))?;
 
-                if !status.success() {
-                    anyhow::bail!("Command failed: {}", full_command);
+                if !output.status.success() {
+                    return Err(crate::error::Error::Command(format!("Command failed:здравствуйте {}
+
+-- stdout --
+{}
+-- stderr --
+{}", full_command, String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr))));
                 }
 
-                println!("✓ Completed: {}\n", action.description);
+                println!("✓ Completed: {}
+", action.description);
             }
         } else {
-            // For regular processes, inherit stdio and wait for completion
-            cmd.stdout(Stdio::inherit())
-                .stderr(Stdio::inherit())
-                .stdin(Stdio::inherit());
+            
 
-            let status = cmd
-                .status()
+            let output = cmd
+                .output()
                 .await
                 .with_context(|| format!("Failed to execute command: {}", full_command))?;
 
-            if !status.success() {
-                anyhow::bail!("Command failed: {}", full_command);
+            if !output.status.success() {
+                return Err(crate::error::Error::Command(format!("Command failed:здравствуйте {}\n\n-- stdout --\n{}\n-- stderr --\n{}", full_command, String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr))));
             }
 
-            println!("✓ Completed: {}\n", action.description);
+            println!("✓ Completed: {}
+", action.description);
         }
     }
 

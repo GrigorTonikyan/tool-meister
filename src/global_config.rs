@@ -1,6 +1,10 @@
-use anyhow::{Context, Result};
+use crate::error::{Error, Result};
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
-use std::{env, path::{Path, PathBuf}};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CargoMetadata {
@@ -64,6 +68,7 @@ impl Default for GlobalConfig {
                         auto_update: false,
                     }],
                     tools_dir: PathBuf::from("tools"),
+
                     default_manifest_dir: PathBuf::from("manifests"),
                 }
             }
@@ -105,20 +110,12 @@ impl GlobalConfig {
 
         // Create parent directory if it doesn't exist
         if let Some(parent) = config_path.parent() {
-            std::fs::create_dir_all(parent).with_context(|| {
-                format!("Failed to create config directory: {}", parent.display())
-            })?;
+            std::fs::create_dir_all(parent).map_err(|e| Error::Io(e))?;
         }
 
-        let toml_content =
-            toml::to_string_pretty(self).context("Failed to serialize global config")?;
+        let toml_content = toml::to_string_pretty(self).map_err(|e| Error::TomlSer(e))?;
 
-        std::fs::write(&config_path, toml_content).with_context(|| {
-            format!(
-                "Failed to write global config file: {}",
-                config_path.display()
-            )
-        })?;
+        std::fs::write(&config_path, toml_content).map_err(|e| Error::Io(e))?;
 
         Ok(())
     }
@@ -210,10 +207,10 @@ impl GlobalConfig {
         match source_type.as_str() {
             "local" | "git" | "url" => {}
             _ => {
-                anyhow::bail!(
+                return Err(crate::error::Error::Config(format!(
                     "Invalid source type '{}'. Must be one of: local, git, url",
                     source_type
-                );
+                )));
             }
         }
 
@@ -240,10 +237,10 @@ impl GlobalConfig {
 
                 // Check if it's a directory
                 if !canonical_path.is_dir() {
-                    anyhow::bail!(
+                    return Err(crate::error::Error::Config(format!(
                         "Local manifest source must be a directory: {}",
                         canonical_path.display()
-                    );
+                    )));
                 }
 
                 // Check if we can read the directory
@@ -259,17 +256,20 @@ impl GlobalConfig {
                     && !path.starts_with("https://")
                     && !path.starts_with("git@")
                 {
-                    anyhow::bail!(
+                    return Err(crate::error::Error::Config(format!(
                         "Git source must be a valid git URL (http://, https://, or git@): {}",
                         path
-                    );
+                    )));
                 }
                 path
             }
             "url" => {
                 // For URLs, do basic validation
                 if !path.starts_with("http://") && !path.starts_with("https://") {
-                    anyhow::bail!("URL source must be a valid HTTP/HTTPS URL: {}", path);
+                    return Err(crate::error::Error::Config(format!(
+                        "URL source must be a valid HTTP/HTTPS URL: {}",
+                        path
+                    )));
                 }
                 path
             }
@@ -283,11 +283,10 @@ impl GlobalConfig {
             .any(|source| source.source_type == source_type && source.path == validated_path);
 
         if source_exists {
-            anyhow::bail!(
+            return Err(crate::error::Error::Config(format!(
                 "Manifest source already exists: {} {}",
-                source_type,
-                validated_path
-            );
+                source_type, validated_path
+            )));
         }
 
         // Add the new source with validated path
@@ -446,22 +445,22 @@ mod tests {
 
     #[test]
     fn test_expand_env_vars_with_home() {
-        env::set_var("HOME", "/home/testuser");
+        unsafe { env::set_var("HOME", "/home/testuser") };
         let result = GlobalConfig::expand_env_vars("$HOME/.config", "").unwrap();
         assert_eq!(result, "/home/testuser/.config");
     }
 
     #[test]
     fn test_expand_env_vars_with_xdg_config_home() {
-        env::set_var("XDG_CONFIG_HOME", "/custom/config");
+        unsafe { env::set_var("XDG_CONFIG_HOME", "/custom/config") };
         let result = GlobalConfig::expand_env_vars("$XDG_CONFIG_HOME/app", "").unwrap();
         assert_eq!(result, "/custom/config/app");
     }
 
     #[test]
     fn test_expand_env_vars_xdg_data_home_fallback() {
-        env::remove_var("XDG_DATA_HOME");
-        env::set_var("HOME", "/home/testuser");
+        unsafe { env::remove_var("XDG_DATA_HOME") };
+        unsafe { env::set_var("HOME", "/home/testuser") };
         let result = GlobalConfig::expand_env_vars("$XDG_DATA_HOME/apps", "").unwrap();
         assert_eq!(result, "/home/testuser/.local/share/apps");
     }
@@ -548,10 +547,12 @@ mod tests {
         );
 
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("must be a directory"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("must be a directory")
+        );
     }
 
     #[test]
@@ -617,10 +618,12 @@ mod tests {
             config.add_manifest_source("invalid".to_string(), "/some/path".to_string(), None, true);
 
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid source type"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Invalid source type")
+        );
     }
 
     #[test]

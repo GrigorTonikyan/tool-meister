@@ -165,7 +165,7 @@ fn test_manifests_add_source_valid_git_url() {
 }
 
 #[test]
-fn test_manifests_add_source_invalid_url() {
+fn test_manifests_add_source__invalid_url() {
     let mut cmd = create_isolated_command();
     cmd.arg("manifests")
         .arg("add-source")
@@ -362,5 +362,62 @@ fn test_duplicate_source_detection() {
         cmd2.assert()
             .failure()
             .stderr(predicate::str::contains("already exists"));
+    });
+}
+
+#[test]
+fn test_run_command_failure_captures_output() {
+    with_shared_test_env(|config_dir| {
+        let manifest_dir = config_dir.path().join("manifests");
+        fs::create_dir_all(&manifest_dir).unwrap();
+
+        // Create a test manifest with a command that will fail
+        let test_manifest = r#"{
+  "repo": {
+    "name": "test-tool",
+    "url": "https://github.com/example/test.git",
+    "default_branch": { "name": "main" }
+  },
+  "dependencies": [],
+  "actions": {
+    "installation": [],
+    "update": [],
+    "build": [],
+    "run": [
+      {
+        "seq-id": 1,
+        "description": "This command will fail",
+        "command": "ls /nonexistent-directory"
+      }
+    ]
+  }
+}"#;
+        fs::write(manifest_dir.join("test-tool.jsonc"), test_manifest).unwrap();
+
+        // Add the manifest source
+        let mut add_cmd = create_command_with_env(config_dir);
+        add_cmd
+            .arg("manifests")
+            .arg("add-source")
+            .arg("--source-type")
+            .arg("local")
+            .arg(manifest_dir.to_str().unwrap());
+        add_cmd.assert().success();
+
+        // Install the tool first
+        let mut install_cmd = create_command_with_env(config_dir);
+        install_cmd.arg("install").arg("test-tool");
+        install_cmd.assert().success();
+
+        // Run the tool, which should fail
+        let mut cmd = create_command_with_env(config_dir);
+        cmd.arg("run").arg("test-tool");
+
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains("Command failed"))
+            .stderr(predicate::str::contains("-- stdout --"))
+            .stderr(predicate::str::contains("-- stderr --"))
+            .stderr(predicate::str::contains("No such file or directory"));
     });
 }

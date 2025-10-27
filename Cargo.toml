@@ -1,7 +1,7 @@
 [package]
 name = "tool-meister"
-version = "0.1.0"
-edition = "2021"
+version = "0.2.0"
+edition = "2024"
 description = "Tool Meister is app to manage and run tools in a workspace."
 default-run = "tool-meister"
 
@@ -11,7 +11,8 @@ serde_json = "1.0"
 clap = { version = "4.0", features = ["derive"] }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
-toml = "0.8"
+toml = "0.9"
+thiserror = "2.0"
 
 [dev-dependencies]
 tempfile = "3.0"
@@ -24,7 +25,7 @@ name = "tool-meister"
 path = "src/main.rs"
 
 [build-dependencies]
-toml = "0.8"
+toml = "0.9"
 serde_json = "1.0"
 
 [package.metadata.settings.defaults]
