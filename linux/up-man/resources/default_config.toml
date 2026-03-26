@@ -1,0 +1,92 @@
+# up-all Configuration File (TOML Format)
+#
+# Define each package manager as an array item.
+# Keys: name, enabled, command, needs-sudo
+
+# --- System Package Managers ---
+
+[[package_manager]]
+name = "APT"
+enabled = true
+command = "apt update && apt full-upgrade -y && apt autoremove -y && apt autoclean"
+needs-sudo = true
+
+[[package_manager]]
+name = "SNAP"
+enabled = true
+command = "snap refresh"
+needs-sudo = true
+
+[[package_manager]]
+name = "FLATPAK"
+enabled = true
+command = "flatpak update -y"
+needs-sudo = false
+
+[[package_manager]]
+name = "DNF"
+enabled = false
+command = "dnf upgrade -y"
+needs-sudo = true
+
+[[package_manager]]
+name = "YUM"
+enabled = false
+command = "yum update -y"
+needs-sudo = true
+
+[[package_manager]]
+name = "PACMAN"
+enabled = false
+command = "pacman -Syu --noconfirm"
+needs-sudo = true
+
+[[package_manager]]
+name = "ZYPPER"
+enabled = false
+command = "zypper update -y"
+needs-sudo = true
+
+# --- Language/Tool Specific Package Managers ---
+
+[[package_manager]]
+name = "BREW"
+enabled = false
+command = "brew update && brew upgrade"
+needs-sudo = false
+
+[[package_manager]]
+name = "RUSTUP"
+enabled = true
+command = "rustup update"
+needs-sudo = false
+
+[[package_manager]]
+name = "CARGO"
+enabled = false
+command = "cargo install-update -a"
+needs-sudo = false
+
+[[package_manager]]
+name = "NPM"
+enabled = false
+command = "npm update -g"
+needs-sudo = false
+
+[[package_manager]]
+name = "PIP"
+enabled = false
+command = "pip list --outdated --format=json | jq -r '.[] | .name' | xargs -n1 pip install -U"
+needs-sudo = false
+
+[[package_manager]]
+name = "PIP3"
+enabled = false
+command = "pip3 list --outdated --format=json | jq -r '.[] | .name' | xargs -n1 pip3 install -U"
+needs-sudo = false
+
+[[package_manager]]
+name = "GEM"
+enabled = false
+command = "gem update"
+needs-sudo = false

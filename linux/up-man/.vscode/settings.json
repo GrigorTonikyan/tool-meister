@@ -1,0 +1,37 @@
+{
+    "rust-analyzer.checkOnSave": true,
+    "github.copilot.advanced": {
+        "useLanguageServer": true
+    },
+    "github.copilot.chat.agent.autoFix": true,
+    "github.copilot.chat.agent.runTasks": true,
+    "github.copilot.chat.agent.thinkingTool": true,
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": ".gen-ai/instructions/code-gen.md"
+        },
+    ],
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": ".gen-ai/instructions/commit.md"
+        },
+    ],
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "github.copilot.chat.edits.newNotebook.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
+    "github.copilot.chat.followUps": "always",
+    "github.copilot.chat.generateTests.codeLens": true,
+    "github.copilot.chat.newWorkspaceCreation.enabled": true,
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.search.semanticTextResults": true,
+    "github.copilot.editor.enableCodeActions": true,
+    "github.copilot.enable": {
+        "*": true,
+        "markdown": true,
+        "plaintext": false,
+        "scminput": false
+    },
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.renameSuggestions.triggerAutomatically": true,
+}

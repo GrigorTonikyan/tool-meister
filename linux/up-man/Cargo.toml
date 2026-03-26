@@ -1,0 +1,99 @@
+[package]
+name = "up-man"
+version = "0.1.0"
+edition = "2021"
+authors = ["Grigor Tonikyan <grigor.tonikyan@gmail.com>"]
+description = "Universal Package Manager Updater"
+license = "MIT" # Rely on standard SPDX license field
+readme = "README.md"
+repository = "https://github.com/GrigorTonikyan/up-man"
+keywords = ["package-manager", "updates", "cli", "system", "utility"]
+categories = ["command-line-utilities", "config"]
+include = [
+    "src/**/*.rs",
+    "Cargo.toml",
+    "Cargo.lock",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "resources/**",
+    "build.rs",
+] # Explicitly include necessary files for packaging
+
+[dependencies]
+clap = { version = "4.5.36", features = ["derive"] }   # Argument parsing
+anyhow = "1.0.98"                                      # Flexible error handling
+dirs = "6.0.0"                                         # Finding home/config directories
+chrono = "0.4.40"                                      # Timestamps for backups
+which = "8.0.0"                                        # Finding executables (like command -v)
+colored = "3.0.0"                                      # Terminal colors
+toml = "0.9.8"                                        # TOML parsing
+serde = { version = "1.0.219", features = ["derive"] } # Deserialization
+log = "0.4.27"
+env_logger = "0.11.8"
+indicatif = "^0.18"                                    # Progress bars
+rayon = "1.10.0"                                       # Parallel execution
+crossterm = "0.29.0"                                   # Terminal control for TUI
+
+[build-dependencies]
+built = { version = "^0.8", features = ["git2", "chrono"] } # Build-time metadata
+
+[package.metadata.deb]
+maintainer = "Grigor Tonikyan <grigor.tonikyan@gmail.com>"
+depends = "$auto"
+section = "utility"
+priority = "optional"
+assets = [
+    [
+        "target/release/up-man",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "README.md",
+        "usr/share/doc/up-man/README.md",
+        "644",
+    ],
+    [
+        "LICENSE",
+        "usr/share/doc/up-man/LICENSE",
+        "644",
+    ],
+    [
+        "resources/default_config.toml",
+        "usr/share/doc/up-man/examples/default_config.toml",
+        "644",
+    ],
+]
+
+[package.metadata.rpm]
+package = "up-man"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+up-man = { path = "/usr/bin/up-man" }
+
+# Add assets explicitly using the array of tables syntax
+[[package.metadata.rpm.assets]]
+source = "README.md"
+dest = "/usr/share/doc/%{name}/README.md"
+mode = "644"
+
+[[package.metadata.rpm.assets]]
+source = "resources/default_config.toml"
+dest = "/usr/share/doc/%{name}/examples/default_config.toml"
+mode = "644"
+
+# You might need to include the whole resources directory if other files are needed
+# [[package.metadata.rpm.assets]]
+# source = "resources/"
+# dest = "/usr/share/%{name}/resources"
+
+[dev-dependencies]
+tempfile = "3.19.1"   # For temporary test files
+assert_cmd = "2.0.17" # For testing CLI
+predicates = "3.1.3"  # For testing CLI output
+mockall = "0.13.1"    # For mocking in unit tests
+test-case = "3.3.1"   # For parameterized tests
