@@ -1,0 +1,20 @@
+[package]
+name = "procstrings"
+version = "0.1.0"
+edition = "2024"
+description = "TUI process memory string inspector"
+
+[dependencies]
+ratatui = "0.30"
+crossterm = "0.29"
+sysinfo = "0.34"
+unicode-width = "0.2"
+
+[profile.dev]
+incremental = true
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+lto = true
+incremental = false
