@@ -1,0 +1,105 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "fdlimit"
+version = "0.1.0"
+description = "A tool for managing Linux file descriptor limits"
+authors = ["Greg <greg@example.com>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/greg/fdlimit"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+]
+packages = [{ include = "fdlimit", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-cov = "^6.0.0"
+mypy = "^1.15.0"
+sphinx = "^8.2.3"
+sphinx-rtd-theme = "^3.0.2"
+ruff = "^0.11.2"
+
+[tool.poetry.scripts]
+fdlimit = "fdlimit.cli:main"
+clean = "scripts.clean:main"
+test = "pytest:main"
+test-cov = "scripts.run_tests:run_with_coverage"
+test-all = "scripts.run_tests:run_full_suite"
+lint = "scripts.run_tests:run_lint"
+format = "scripts.run_tests:run_format"
+
+[tool.ruff.lint]
+# Enable rules
+select = ["E", "F", "B", "I", "N", "UP", "ANN", "PL", "RUF"]
+# Ignore specific rules
+ignore = [
+    "E203", # Whitespace before ':' - Black handles this
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.8.1
+target-version = "py38"
+
+# Exclude a variety of commonly ignored directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["fdlimit"]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+suppress-none-returning = true
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"

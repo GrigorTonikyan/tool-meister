@@ -1,0 +1,31 @@
+{
+    "cSpell.words": [
+        "bysource",
+        "fdlimit",
+        "getch",
+        "geteuid",
+        "getmaxyx",
+        "HLINE",
+        "isort",
+        "LLCORNER",
+        "LRCORNER",
+        "mypy",
+        "nofile",
+        "pytest",
+        "rtype",
+        "ULCORNER",
+        "undoc",
+        "URCORNER",
+        "VLINE"
+    ],
+    "python.analysis.aiCodeActions": {
+        "generateDocstring": true,
+        "generateSymbol": true,
+        "implementAbstractClasses": true,
+    },
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
