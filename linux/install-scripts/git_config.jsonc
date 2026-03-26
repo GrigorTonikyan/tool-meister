@@ -1,0 +1,23 @@
+{
+    "title": "== Git Configuration Menu ==",
+    "options": [
+        {
+            "text": "👤 Setup Git User",
+            "type": "scriptFunction",
+            "functionName": "setup_git_user"
+        },
+        {
+            "text": "📋 Show Current Git Configuration",
+            "type": "scriptFunction",
+            "functionName": "show_git_config"
+        },
+        {
+            "text": "⬅️ Back to Main Menu",
+            "type": "return"
+        }
+    ],
+    "defaultConfig": {
+        "name": "Grigor Tonikyan",
+        "email": "grigor.tonikyan@gmail.com"
+    }
+}

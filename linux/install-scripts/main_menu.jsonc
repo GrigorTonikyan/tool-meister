@@ -1,0 +1,39 @@
+{
+  "title": "== Bash TUI Menu (JSON Configured) ==",
+  "options": [
+    {
+      "text": "🖥  System Info",
+      "type": "scriptFunction",
+      "functionName": "run_uname_a"
+    },
+    {
+      "text": "📁  Current Directory",
+      "type": "scriptFunction",
+      "functionName": "run_pwd"
+    },
+    {
+      "text": "📄  List Files",
+      "type": "scriptFunction",
+      "functionName": "run_ls_lh"
+    },
+    {
+      "text": "💻 Visual Studio Code",
+      "type": "submenu",
+      "handlerFunction": "vscode_menu_from_json"
+    },
+    {
+      "text": "📦 AUR Helpers",
+      "type": "submenu",
+      "handlerFunction": "aur_helpers_menu_from_json"
+    },
+    {
+      "text": "🔧 Git Configuration",
+      "type": "submenu",
+      "handlerFunction": "git_config_menu_from_json"
+    },
+    {
+      "text": "🚪  Quit",
+      "type": "exit"
+    }
+  ]
+}
