@@ -1,0 +1,25 @@
+{
+"title": "== Arch Tool Meister - Modular ==",
+"dynamicMenu": true,
+  "options": [
+    {
+      "text": "🖥 System Info",
+      "type": "scriptFunction",
+      "functionName": "run_uname_a"
+    },
+    {
+      "text": "📁 Current Directory",
+      "type": "scriptFunction",
+      "functionName": "run_pwd"
+    },
+    {
+      "text": "📄 List Files",
+      "type": "scriptFunction",
+      "functionName": "run_ls_lh"
+    },
+    {
+      "text": "🚪 Quit",
+      "type": "exit"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+    "title": "AUR Helpers",
+    "options": [
+        {
+            "text": "Install Yay",
+            "type": "scriptFunction",
+            "functionName": "install_yay"
+        },
+        {
+            "text": "Install Paru",
+            "type": "scriptFunction",
+            "functionName": "install_paru"
+        },
+        {
+            "text": "Return to Main Menu",
+            "type": "return"
+        }
+    ]
+}

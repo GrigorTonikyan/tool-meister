@@ -1,0 +1,13 @@
+{
+    // Git Config module configuration
+    "name": "git_config",
+    "description": "Git configuration management",
+    "version": "1.0.0",
+    "menuTitle": "Git Configuration",
+    "mainMenuEntry": "Configure Git",
+    "enabled": true,
+    "settings": {
+        "defaultUserName": "Your Name",
+        "defaultUserEmail": "your.email@example.com"
+    }
+}

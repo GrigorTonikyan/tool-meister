@@ -1,0 +1,29 @@
+{
+    "title": "System Information",
+    "options": [
+        {
+            "text": "System Information (uname -a)",
+            "type": "scriptFunction",
+            "functionName": "display_system_info"
+        },
+        {
+            "text": "Show Disk Usage",
+            "type": "scriptFunction",
+            "functionName": "display_disk_usage"
+        },
+        {
+            "text": "Show Memory Usage",
+            "type": "scriptFunction",
+            "functionName": "display_memory_usage"
+        },
+        {
+            "text": "Show CPU Information",
+            "type": "scriptFunction",
+            "functionName": "display_cpu_info"
+        },
+        {
+            "text": "Return to Main Menu",
+            "type": "return"
+        }
+    ]
+}

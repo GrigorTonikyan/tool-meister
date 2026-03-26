@@ -1,0 +1,19 @@
+{
+  "name": "quit",
+  "description": "Application exit functionality",
+  "version": "1.0.0",
+  "enabled": true,
+  "settings": {},
+  "menu": {
+    "title": "Exit Application",
+    "mainMenuEntry": "🚪 Quit",
+    "options": [
+      {
+        "text": "Exit Application",
+        "type": "exit"
+      }
+    ]
+  },
+  "commands": {},
+  "functions": {}
+}

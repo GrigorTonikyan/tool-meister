@@ -1,0 +1,111 @@
+{
+  "name": "vscode",
+  "description": "Visual Studio Code installation and management",
+  "version": "1.0.0",
+  "enabled": true,
+  "settings": {
+    "stable": {
+      "url": "https://code.visualstudio.com/sha/download?build=stable&os=linux-x64",
+      "dirName": "vscode-stable",
+      "symlinkName": "code",
+      "label": "VS Code Stable"
+    },
+    "insiders": {
+      "url": "https://code.visualstudio.com/sha/download?build=insider&os=linux-x64",
+      "dirName": "vscode-insiders",
+      "symlinkName": "code-insiders",
+      "label": "VS Code Insiders"
+    },
+    "downloadDir": "/tmp/vscode-dl",
+    "installPrefix": "/opt"
+  },
+  "menu": {
+    "title": "VSCode Management",
+    "mainMenuEntry": "Manage Visual Studio Code",
+    "options": [
+      {
+        "text": "Install VS Code Stable",
+        "type": "scriptFunction",
+        "functionName": "deploy_vscode_stable"
+      },
+      {
+        "text": "Install VS Code Insiders",
+        "type": "scriptFunction",
+        "functionName": "deploy_vscode_insiders"
+      },
+      {
+        "text": "Install Both VS Code Versions",
+        "type": "scriptFunction",
+        "functionName": "deploy_vscode_both"
+      },
+      {
+        "text": "Uninstall VS Code Stable",
+        "type": "scriptFunction",
+        "functionName": "uninstall_vscode_stable"
+      },
+      {
+        "text": "Uninstall VS Code Insiders",
+        "type": "scriptFunction",
+        "functionName": "uninstall_vscode_insiders"
+      },
+      {
+        "text": "Uninstall Both VS Code Versions",
+        "type": "scriptFunction",
+        "functionName": "uninstall_vscode_both"
+      },
+      {
+        "text": "Return to Main Menu",
+        "type": "return"
+      }
+    ]
+  },
+  "commands": {
+    "deploy_vscode_stable": {
+      "description": "Install VS Code Stable",
+      "dependencies": ["curl", "tar"],
+      "function": "_deploy_vscode",
+      "args": ["stable"]
+    },
+    "deploy_vscode_insiders": {
+      "description": "Install VS Code Insiders",
+      "dependencies": ["curl", "tar"],
+      "function": "_deploy_vscode",
+      "args": ["insiders"]
+    },
+    "deploy_vscode_both": {
+      "description": "Install both VS Code versions",
+      "dependencies": ["curl", "tar"],
+      "function": "_deploy_vscode_both",
+      "args": []
+    },
+    "uninstall_vscode_stable": {
+      "description": "Uninstall VS Code Stable",
+      "function": "_uninstall_vscode",
+      "args": ["stable"]
+    },
+    "uninstall_vscode_insiders": {
+      "description": "Uninstall VS Code Insiders",
+      "function": "_uninstall_vscode",
+      "args": ["insiders"]
+    },
+    "uninstall_vscode_both": {
+      "description": "Uninstall both VS Code versions",
+      "function": "_uninstall_vscode_both",
+      "args": []
+    }
+  },
+  "functions": {
+    "_deploy_vscode": {
+      "code": "local variant=\"$1\"\nlocal label url dir_name symlink_name\n\nif [[ \"$variant\" == \"stable\" ]]; then\n  label=\"${MODULE_CONFIG[stable.label]}\"\n  url=\"${MODULE_CONFIG[stable.url]}\"\n  dir_name=\"${MODULE_CONFIG[stable.dirName]}\"\n  symlink_name=\"${MODULE_CONFIG[stable.symlinkName]}\"\nelif [[ \"$variant\" == \"insiders\" ]]; then\n  label=\"${MODULE_CONFIG[insiders.label]}\"\n  url=\"${MODULE_CONFIG[insiders.url]}\"\n  dir_name=\"${MODULE_CONFIG[insiders.dirName]}\"\n  symlink_name=\"${MODULE_CONFIG[insiders.symlinkName]}\"\nelse\n  echo -e \"${RED}ERROR: Unknown VSCode variant: $variant${RESET}\" >&2\n  return 1\nfi\n\necho -e \"${BLUE}Installing $label...${RESET}\"\n\n# Create download directory if it doesn't exist\nlocal download_dir=\"${MODULE_CONFIG[downloadDir]}\"\nmkdir -p \"$download_dir\"\n\n# Download the tarball\nlocal tarball=\"$download_dir/$variant.tar.gz\"\necho -e \"${CYAN}Downloading $label from $url...${RESET}\"\ncurl -L \"$url\" -o \"$tarball\"\nif [[ $? -ne 0 ]]; then\n  echo -e \"${RED}Failed to download $label.${RESET}\" >&2\n  return 1\nfi\n\n# Extract to installation directory\nlocal install_prefix=\"${MODULE_CONFIG[installPrefix]}\"\nlocal install_dir=\"$install_prefix/$dir_name\"\necho -e \"${CYAN}Extracting to $install_dir...${RESET}\"\nsudo mkdir -p \"$install_dir\"\nsudo tar -xzf \"$tarball\" -C \"$install_dir\" --strip-components=1\nif [[ $? -ne 0 ]]; then\n  echo -e \"${RED}Failed to extract $label.${RESET}\" >&2\n  return 1\nfi\n\n# Create symlink\nlocal symlink_path=\"/usr/local/bin/$symlink_name\"\necho -e \"${CYAN}Creating symlink at $symlink_path...${RESET}\"\nsudo ln -sf \"$install_dir/bin/code\" \"$symlink_path\"\nif [[ $? -ne 0 ]]; then\n  echo -e \"${RED}Failed to create symlink for $label.${RESET}\" >&2\n  return 1\nfi\n\necho -e \"${GREEN}Successfully installed $label!${RESET}\"\nreturn 0"
+    },
+    "_deploy_vscode_both": {
+      "code": "vscode___deploy_vscode stable\nvscode___deploy_vscode insiders\nreturn $?"
+    },
+    "_uninstall_vscode": {
+      "code": "local variant=\"$1\"\nlocal label dir_name symlink_name\n\nif [[ \"$variant\" == \"stable\" ]]; then\n  label=\"${MODULE_CONFIG[stable.label]}\"\n  dir_name=\"${MODULE_CONFIG[stable.dirName]}\"\n  symlink_name=\"${MODULE_CONFIG[stable.symlinkName]}\"\nelif [[ \"$variant\" == \"insiders\" ]]; then\n  label=\"${MODULE_CONFIG[insiders.label]}\"\n  dir_name=\"${MODULE_CONFIG[insiders.dirName]}\"\n  symlink_name=\"${MODULE_CONFIG[insiders.symlinkName]}\"\nelse\n  echo -e \"${RED}ERROR: Unknown VSCode variant: $variant${RESET}\" >&2\n  return 1\nfi\n\necho -e \"${BLUE}Uninstalling $label...${RESET}\"\n\n# Remove installation directory\nlocal install_prefix=\"${MODULE_CONFIG[installPrefix]}\"\nlocal install_dir=\"$install_prefix/$dir_name\"\necho -e \"${CYAN}Removing $install_dir...${RESET}\"\nsudo rm -rf \"$install_dir\"\n\n# Remove symlink\nlocal symlink_path=\"/usr/local/bin/$symlink_name\"\necho -e \"${CYAN}Removing symlink $symlink_path...${RESET}\"\nsudo rm -f \"$symlink_path\"\n\necho -e \"${GREEN}Successfully uninstalled $label!${RESET}\"\nreturn 0"
+    },
+    "_uninstall_vscode_both": {
+      "code": "vscode___uninstall_vscode stable\nvscode___uninstall_vscode insiders\nreturn $?"
+    }
+  }
+}

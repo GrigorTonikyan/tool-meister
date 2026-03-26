@@ -1,0 +1,24 @@
+{
+    "title": "== AUR Helper Installation Menu ==",
+    "options": [
+        {
+            "text": "📦 Install Yay",
+            "type": "scriptFunction",
+            "functionName": "install_yay_helper"
+        },
+        {
+            "text": "🚀 Install Paru",
+            "type": "scriptFunction",
+            "functionName": "install_paru_helper"
+        },
+        {
+            "text": "💽 Install Both",
+            "type": "scriptFunction",
+            "functionName": "install_both_helpers"
+        },
+        {
+            "text": "⬅️ Back to Main Menu",
+            "type": "return"
+        }
+    ]
+}

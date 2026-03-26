@@ -1,0 +1,58 @@
+{
+  "name": "aur_helpers",
+  "description": "AUR Helpers installation and management",
+  "version": "1.0.0",
+  "enabled": true,
+  "settings": {
+    "yay": {
+      "repoUrl": "https://aur.archlinux.org/yay.git",
+      "cloneDir": "yay",
+      "label": "Yay AUR Helper"
+    },
+    "paru": {
+      "repoUrl": "https://aur.archlinux.org/paru-bin.git",
+      "cloneDir": "paru-bin",
+      "label": "Paru AUR Helper"
+    },
+    "tempDir": "/tmp/aur-build"
+  },
+  "menu": {
+    "title": "AUR Helpers",
+    "mainMenuEntry": "Manage AUR Helpers",
+    "options": [
+      {
+        "text": "Install Yay",
+        "type": "scriptFunction",
+        "functionName": "install_yay"
+      },
+      {
+        "text": "Install Paru",
+        "type": "scriptFunction",
+        "functionName": "install_paru"
+      },
+      {
+        "text": "Return to Main Menu",
+        "type": "return"
+      }
+    ]
+  },
+  "commands": {
+    "install_yay": {
+      "description": "Install Yay AUR Helper",
+      "dependencies": ["git", "base-devel"],
+      "function": "_install_aur_helper",
+      "args": ["yay"]
+    },
+    "install_paru": {
+      "description": "Install Paru AUR Helper",
+      "dependencies": ["git", "base-devel"],
+      "function": "_install_aur_helper",
+      "args": ["paru"]
+    }
+  },
+  "functions": {
+    "_install_aur_helper": {
+      "code": "local helper=\"$1\"\nlocal repo_url clone_dir label\n\nif [[ \"$helper\" == \"yay\" ]]; then\n  repo_url=\"${MODULE_CONFIG[yay.repoUrl]}\"\n  clone_dir=\"${MODULE_CONFIG[yay.cloneDir]}\"\n  label=\"${MODULE_CONFIG[yay.label]}\"\nelif [[ \"$helper\" == \"paru\" ]]; then\n  repo_url=\"${MODULE_CONFIG[paru.repoUrl]}\"\n  clone_dir=\"${MODULE_CONFIG[paru.cloneDir]}\"\n  label=\"${MODULE_CONFIG[paru.label]}\"\nelse\n  echo -e \"${RED}ERROR: Unknown AUR helper: $helper${RESET}\" >&2\n  return 1\nfi\n\necho -e \"${BLUE}Installing $label...${RESET}\"\n\n# Create temp directory\nlocal temp_dir=\"${MODULE_CONFIG[tempDir]}\"\nmkdir -p \"$temp_dir\"\ncd \"$temp_dir\" || return 1\n\n# Clone repository\necho -e \"${CYAN}Cloning $repo_url...${RESET}\"\nrm -rf \"$clone_dir\"\ngit clone \"$repo_url\"\nif [[ $? -ne 0 ]]; then\n  echo -e \"${RED}Failed to clone $label repository.${RESET}\" >&2\n  return 1\nfi\n\n# Build and install\ncd \"$clone_dir\" || return 1\necho -e \"${CYAN}Building and installing $label...${RESET}\"\nmakepkg -si --noconfirm\nif [[ $? -ne 0 ]]; then\n  echo -e \"${RED}Failed to build and install $label.${RESET}\" >&2\n  return 1\nfi\n\necho -e \"${GREEN}Successfully installed $label!${RESET}\"\nreturn 0"
+    }
+  }
+}

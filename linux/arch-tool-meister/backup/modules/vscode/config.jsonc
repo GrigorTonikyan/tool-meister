@@ -1,0 +1,25 @@
+{
+    // VSCode module configuration
+    "name": "vscode",
+    "description": "Visual Studio Code installation and management",
+    "version": "1.0.0",
+    "menuTitle": "VSCode Management",
+    "mainMenuEntry": "Manage Visual Studio Code",
+    "enabled": true,
+    "settings": {
+        "stable": {
+            "url": "https://code.visualstudio.com/sha/download?build=stable&os=linux-x64",
+            "dirName": "vscode-stable",
+            "symlinkName": "code",
+            "label": "VS Code Stable"
+        },
+        "insiders": {
+            "url": "https://code.visualstudio.com/sha/download?build=insider&os=linux-x64",
+            "dirName": "vscode-insiders",
+            "symlinkName": "code-insiders",
+            "label": "VS Code Insiders"
+        },
+        "downloadDir": "/tmp/vscode-dl",
+        "installPrefix": "/opt"
+    }
+}

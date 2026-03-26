@@ -1,0 +1,51 @@
+{
+    // Git Config module commands
+    "commands": {
+        "set_git_username": {
+            "description": "Set Git User Name",
+            "dependencies": [
+                "git"
+            ],
+            "function": "_set_git_username",
+            "args": []
+        },
+        "set_git_email": {
+            "description": "Set Git User Email",
+            "dependencies": [
+                "git"
+            ],
+            "function": "_set_git_email",
+            "args": []
+        },
+        "set_git_editor": {
+            "description": "Configure Git Default Editor",
+            "dependencies": [
+                "git"
+            ],
+            "function": "_set_git_editor",
+            "args": []
+        },
+        "show_git_config": {
+            "description": "Show Current Git Configuration",
+            "dependencies": [
+                "git"
+            ],
+            "function": "_show_git_config",
+            "args": []
+        }
+    },
+    "functions": {
+        "_set_git_username": {
+            "code": "echo -e \"${BLUE}Setting Git Username${RESET}\"\necho -e \"Enter your Git username (default: ${MODULE_CONFIG[defaultUserName]}):\"\nread -r git_username\n\nif [[ -z \"$git_username\" ]]; then\n  git_username=\"${MODULE_CONFIG[defaultUserName]}\"\nfi\n\ngit config --global user.name \"$git_username\"\nif [[ $? -eq 0 ]]; then\n  echo -e \"${GREEN}Successfully set Git username to '$git_username'${RESET}\"\nelse\n  echo -e \"${RED}Failed to set Git username${RESET}\" >&2\n  return 1\nfi\nreturn 0"
+        },
+        "_set_git_email": {
+            "code": "echo -e \"${BLUE}Setting Git Email${RESET}\"\necho -e \"Enter your Git email (default: ${MODULE_CONFIG[defaultUserEmail]}):\"\nread -r git_email\n\nif [[ -z \"$git_email\" ]]; then\n  git_email=\"${MODULE_CONFIG[defaultUserEmail]}\"\nfi\n\ngit config --global user.email \"$git_email\"\nif [[ $? -eq 0 ]]; then\n  echo -e \"${GREEN}Successfully set Git email to '$git_email'${RESET}\"\nelse\n  echo -e \"${RED}Failed to set Git email${RESET}\" >&2\n  return 1\nfi\nreturn 0"
+        },
+        "_set_git_editor": {
+            "code": "echo -e \"${BLUE}Setting Git Default Editor${RESET}\"\necho -e \"Available editors:\"\necho -e \"1. nano\"\necho -e \"2. vim\"\necho -e \"3. code (VSCode)\"\necho -e \"4. code-insiders (VSCode Insiders)\"\necho -e \"5. Other (specify)\"\necho -e \"Enter your choice (1-5):\"\nread -r editor_choice\n\ncase \"$editor_choice\" in\n  1) editor=\"nano\" ;;\n  2) editor=\"vim\" ;;\n  3) editor=\"code --wait\" ;;\n  4) editor=\"code-insiders --wait\" ;;\n  5) echo -e \"Enter the path to your editor:\" && read -r editor ;;\n  *) echo -e \"${RED}Invalid choice${RESET}\" >&2 && return 1 ;;\nesac\n\ngit config --global core.editor \"$editor\"\nif [[ $? -eq 0 ]]; then\n  echo -e \"${GREEN}Successfully set Git editor to '$editor'${RESET}\"\nelse\n  echo -e \"${RED}Failed to set Git editor${RESET}\" >&2\n  return 1\nfi\nreturn 0"
+        },
+        "_show_git_config": {
+            "code": "echo -e \"${BLUE}Current Git Configuration:${RESET}\"\ngit config --list\nreturn $?"
+        }
+    }
+}

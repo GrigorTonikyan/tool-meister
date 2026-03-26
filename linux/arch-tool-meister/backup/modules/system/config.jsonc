@@ -1,0 +1,10 @@
+{
+    // System module configuration
+    "name": "system",
+    "description": "Basic system commands and information",
+    "version": "1.0.0",
+    "menuTitle": "System Commands",
+    "mainMenuEntry": "System Information",
+    "enabled": true,
+    "settings": {}
+}

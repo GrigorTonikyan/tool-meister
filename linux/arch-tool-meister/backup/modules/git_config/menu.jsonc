@@ -1,0 +1,29 @@
+{
+    "title": "Git Configuration",
+    "options": [
+        {
+            "text": "Set Git User Name",
+            "type": "scriptFunction",
+            "functionName": "set_git_username"
+        },
+        {
+            "text": "Set Git User Email",
+            "type": "scriptFunction",
+            "functionName": "set_git_email"
+        },
+        {
+            "text": "Configure Git Default Editor",
+            "type": "scriptFunction",
+            "functionName": "set_git_editor"
+        },
+        {
+            "text": "Show Current Git Configuration",
+            "type": "scriptFunction",
+            "functionName": "show_git_config"
+        },
+        {
+            "text": "Return to Main Menu",
+            "type": "return"
+        }
+    ]
+}

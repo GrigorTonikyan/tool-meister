@@ -1,0 +1,19 @@
+{
+    "title": "Module Creator",
+    "options": [
+        {
+            "text": "Create New Module",
+            "type": "scriptFunction",
+            "functionName": "create_new_module"
+        },
+        {
+            "text": "List Existing Modules",
+            "type": "scriptFunction",
+            "functionName": "list_modules"
+        },
+        {
+            "text": "Return to Main Menu",
+            "type": "return"
+        }
+    ]
+}

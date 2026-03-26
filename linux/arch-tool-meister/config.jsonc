@@ -1,0 +1,14 @@
+{
+  // Application-wide settings
+  "appSettings": {
+    "appName": "Arch Tool Meister",
+    "version": "2.0.0",
+    "modulesDir": "modules",
+    "downloadDir": "/tmp/downloads",
+    "installPrefix": "/opt",
+    "animation": {
+      "steps": 10,
+      "delayMs": 320
+    }
+  }
+}

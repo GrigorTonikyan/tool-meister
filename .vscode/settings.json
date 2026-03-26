@@ -1,3 +1,14 @@
 {
-    "cSpell.words": ["serde"]
+  "cSpell.words": [
+    "codegen",
+    "crossterm",
+    "libc",
+    "netctl",
+    "networkd",
+    "pacman",
+    "ratatui",
+    "serde",
+    "thiserror",
+    "vergen"
+  ]
 }

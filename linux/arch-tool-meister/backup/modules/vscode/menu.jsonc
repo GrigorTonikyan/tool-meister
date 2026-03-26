@@ -1,0 +1,39 @@
+{
+    "title": "VSCode Management",
+    "options": [
+        {
+            "text": "Install VS Code Stable",
+            "type": "scriptFunction",
+            "functionName": "deploy_vscode_stable"
+        },
+        {
+            "text": "Install VS Code Insiders",
+            "type": "scriptFunction",
+            "functionName": "deploy_vscode_insiders"
+        },
+        {
+            "text": "Install Both VS Code Versions",
+            "type": "scriptFunction",
+            "functionName": "deploy_vscode_both"
+        },
+        {
+            "text": "Uninstall VS Code Stable",
+            "type": "scriptFunction",
+            "functionName": "uninstall_vscode_stable"
+        },
+        {
+            "text": "Uninstall VS Code Insiders",
+            "type": "scriptFunction",
+            "functionName": "uninstall_vscode_insiders"
+        },
+        {
+            "text": "Uninstall Both VS Code Versions",
+            "type": "scriptFunction",
+            "functionName": "uninstall_vscode_both"
+        },
+        {
+            "text": "Return to Main Menu",
+            "type": "return"
+        }
+    ]
+}

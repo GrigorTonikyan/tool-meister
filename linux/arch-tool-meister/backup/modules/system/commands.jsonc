@@ -1,0 +1,39 @@
+{
+    // System module commands
+    "commands": {
+        "display_system_info": {
+            "description": "Display system information",
+            "function": "_display_system_info",
+            "args": []
+        },
+        "display_disk_usage": {
+            "description": "Display disk usage",
+            "function": "_display_disk_usage",
+            "args": []
+        },
+        "display_memory_usage": {
+            "description": "Display memory usage",
+            "function": "_display_memory_usage",
+            "args": []
+        },
+        "display_cpu_info": {
+            "description": "Display CPU information",
+            "function": "_display_cpu_info",
+            "args": []
+        }
+    },
+    "functions": {
+        "_display_system_info": {
+            "code": "echo -e \"\\n${BLUE}System Information:${RESET}\"\nuname -a\necho -e \"\\n${BLUE}Host Information:${RESET}\"\nhostnamectl\nreturn 0"
+        },
+        "_display_disk_usage": {
+            "code": "echo -e \"${BLUE}Disk Usage:${RESET}\"\ndf -h\nreturn 0"
+        },
+        "_display_memory_usage": {
+            "code": "echo -e \"${BLUE}Memory Usage:${RESET}\"\nfree -h\nreturn 0"
+        },
+        "_display_cpu_info": {
+            "code": "echo -e \"${BLUE}CPU Information:${RESET}\"\nif [[ -f /proc/cpuinfo ]]; then\n  grep -m 1 'model name' /proc/cpuinfo\n  echo -e \"\\n${BLUE}CPU Cores:${RESET}\"\n  grep -c processor /proc/cpuinfo\nelse\n  echo \"CPU information not available.\"\nfi\nreturn 0"
+        }
+    }
+}

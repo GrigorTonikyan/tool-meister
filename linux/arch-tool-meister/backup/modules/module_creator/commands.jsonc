@@ -1,0 +1,22 @@
+{
+    "commands": {
+        "create_new_module": {
+            "description": "Create a new module template",
+            "function": "_create_new_module",
+            "args": []
+        },
+        "list_modules": {
+            "description": "List existing modules",
+            "function": "_list_modules",
+            "args": []
+        }
+    },
+    "functions": {
+        "_create_new_module": {
+            "code": "echo -e \"${BLUE}Creating a new module...${RESET}\"\n\n# Get module name\necho -e \"Enter the module name (lowercase, no spaces):\"\nread -r module_name\n\nif [[ -z \"$module_name\" ]]; then\n  echo -e \"${RED}Module name cannot be empty.${RESET}\"\n  return 1\nfi\n\n# Validate module name (only lowercase letters, numbers, and underscores)\nif ! [[ \"$module_name\" =~ ^[a-z0-9_]+$ ]]; then\n  echo -e \"${RED}Invalid module name. Use only lowercase letters, numbers, and underscores.${RESET}\"\n  return 1\nfi\n\n# Check if module already exists\nlocal modules_dir=\"${APP_CONFIG[modulesDir]}\"\nif [[ -d \"$modules_dir/$module_name\" ]]; then\n  echo -e \"${RED}Module '$module_name' already exists.${RESET}\"\n  return 1\nfi\n\n# Get module description\necho -e \"Enter the module description:\"\nread -r module_description\n\n# Get module title\necho -e \"Enter the menu title for the module:\"\nread -r module_title\n\n# Get main menu entry\necho -e \"Enter the main menu entry text:\"\nread -r main_menu_entry\n\n# Create module directory\nmkdir -p \"$modules_dir/$module_name\"\n\n# Generate config.jsonc from template\nlocal config_template=$(echo \"${MODULE_CONFIG[templates.config]}\" | jq -c .)\nconfig_template=\"${config_template//\\<MODULE_NAME\\>/$module_name}\"\nconfig_template=\"${config_template//\\<MODULE_DESCRIPTION\\>/$module_description}\"\nconfig_template=\"${config_template//\\<MODULE_TITLE\\>/$module_title}\"\nconfig_template=\"${config_template//\\<MAIN_MENU_ENTRY\\>/$main_menu_entry}\"\n\n# Format JSON with indentation and save to file\necho \"$config_template\" | jq . > \"$modules_dir/$module_name/config.jsonc\"\n\n# Generate menu.jsonc from template\nlocal menu_template=$(echo \"${MODULE_CONFIG[templates.menu]}\" | jq -c .)\nmenu_template=\"${menu_template//\\<MODULE_TITLE\\>/$module_title}\"\necho \"$menu_template\" | jq . > \"$modules_dir/$module_name/menu.jsonc\"\n\n# Generate commands.jsonc from template\nlocal commands_template=$(echo \"${MODULE_CONFIG[templates.commands]}\" | jq -c .)\necho \"$commands_template\" | jq . > \"$modules_dir/$module_name/commands.jsonc\"\n\necho -e \"${GREEN}Module '$module_name' created successfully!${RESET}\"\necho -e \"Module files:\"\necho -e \"  - $modules_dir/$module_name/config.jsonc\"\necho -e \"  - $modules_dir/$module_name/menu.jsonc\"\necho -e \"  - $modules_dir/$module_name/commands.jsonc\"\necho -e \"\\nRestart the script to load the new module.\"\n\nreturn 0"
+        },
+        "_list_modules": {
+            "code": "echo -e \"${BLUE}Existing modules:${RESET}\"\n\nlocal modules_dir=\"${APP_CONFIG[modulesDir]}\"\nlocal module_count=0\n\nwhile IFS= read -r module_dir; do\n  if [[ -d \"$module_dir\" ]]; then\n    local module_name=$(basename \"$module_dir\")\n    local is_enabled=\"true\"\n    local description=\"\"\n    local version=\"\"\n    \n    if [[ -f \"$module_dir/config.jsonc\" ]]; then\n      local config_content=$(cat \"$module_dir/config.jsonc\")\n      local stripped_content=$(_strip_jsonc_comments \"$config_content\")\n      \n      is_enabled=$(_get_json_value \"$stripped_content\" \".enabled\" \"true\")\n      description=$(_get_json_value \"$stripped_content\" \".description\" \"\")\n      version=$(_get_json_value \"$stripped_content\" \".version\" \"\")\n    fi\n    \n    local status=\"${GREEN}✓ Enabled${RESET}\"\n    if [[ \"$is_enabled\" != \"true\" ]]; then\n      status=\"${RED}✗ Disabled${RESET}\"\n    fi\n    \n    echo -e \"${BOLD}$module_name${RESET} v${version} - $status\"\n    echo -e \"  $description\"\n    echo\n    \n    module_count=$((module_count + 1))\n  fi\ndone < <(find \"$modules_dir\" -mindepth 1 -maxdepth 1 -type d)\n\necho -e \"Found $module_count module(s).\"\n\nreturn 0"
+        }
+    }
+}

@@ -1,0 +1,50 @@
+{
+    // Module Creator module configuration
+    "name": "module_creator",
+    "description": "Creates new module templates",
+    "version": "1.0.0",
+    "menuTitle": "Module Creator",
+    "mainMenuEntry": "Create New Module",
+    "enabled": true,
+    "settings": {
+        "templates": {
+            "config": {
+                "name": "<MODULE_NAME>",
+                "description": "<MODULE_DESCRIPTION>",
+                "version": "1.0.0",
+                "menuTitle": "<MODULE_TITLE>",
+                "mainMenuEntry": "<MAIN_MENU_ENTRY>",
+                "enabled": true,
+                "settings": {}
+            },
+            "menu": {
+                "title": "<MODULE_TITLE>",
+                "options": [
+                    {
+                        "text": "Example Option",
+                        "type": "scriptFunction",
+                        "functionName": "example_function"
+                    },
+                    {
+                        "text": "Return to Main Menu",
+                        "type": "return"
+                    }
+                ]
+            },
+            "commands": {
+                "commands": {
+                    "example_function": {
+                        "description": "Example function",
+                        "function": "_example_function",
+                        "args": []
+                    }
+                },
+                "functions": {
+                    "_example_function": {
+                        "code": "echo -e \"${GREEN}This is an example function.${RESET}\"\nreturn 0"
+                    }
+                }
+            }
+        }
+    }
+}

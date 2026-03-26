@@ -1,0 +1,22 @@
+{
+    // AUR Helpers module configuration
+    "name": "aur_helpers",
+    "description": "AUR Helpers installation and management",
+    "version": "1.0.0",
+    "menuTitle": "AUR Helpers",
+    "mainMenuEntry": "Manage AUR Helpers",
+    "enabled": true,
+    "settings": {
+        "yay": {
+            "repoUrl": "https://aur.archlinux.org/yay.git",
+            "cloneDir": "yay",
+            "label": "Yay AUR Helper"
+        },
+        "paru": {
+            "repoUrl": "https://aur.archlinux.org/paru-bin.git",
+            "cloneDir": "paru-bin",
+            "label": "Paru AUR Helper"
+        },
+        "tempDir": "/tmp/aur-build"
+    }
+}

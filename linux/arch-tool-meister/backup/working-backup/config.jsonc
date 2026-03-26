@@ -1,0 +1,44 @@
+{
+  // Application-wide settings
+  "appSettings": {
+    "downloadDir": "/tmp/vscode-downloads-dynamic", // Changed for clarity //
+    "installPrefix": "/opt",
+    "animation": {
+      "steps": 10,
+      "delayMs": 320
+    }
+  },
+  // VSCode specific configurations
+  "vscodeConfig": {
+    "stable": {
+      "url": "https://update.code.visualstudio.com/latest/linux-x64/stable",
+      "dirName": "vscode",
+      "symlinkName": "code",
+      "label": "Stable"
+    },
+    "insiders": {
+      "url": "https://update.code.visualstudio.com/latest/linux-x64/insider",
+      "dirName": "vscode-insiders",
+      "symlinkName": "code-insiders",
+      "label": "Insiders"
+    }
+  },
+  // Paths to menu definition files
+  "menuPaths": {
+    "main": "main_menu.jsonc",
+    "vscode": "vscode_menu.jsonc",
+    "aurHelpers": "aur_helpers.jsonc",
+    "gitConfig": "git_config.jsonc"
+  },
+  // AUR helpers configuration
+  "aurHelpers": {
+    "yay": {
+      "repoUrl": "https://aur.archlinux.org/yay.git",
+      "cloneDir": "yay"
+    },
+    "paru": {
+      "repoUrl": "https://aur.archlinux.org/paru-bin.git",
+      "cloneDir": "paru-bin"
+    }
+  }
+}

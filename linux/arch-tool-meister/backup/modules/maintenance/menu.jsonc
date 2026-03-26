@@ -1,0 +1,29 @@
+{
+    "title": "System Maintenance",
+    "options": [
+        {
+            "text": "Clean Backup Files",
+            "type": "scriptFunction",
+            "functionName": "clean_backup_files"
+        },
+        {
+            "text": "Restore Backup Files",
+            "type": "scriptFunction",
+            "functionName": "restore_backup_files"
+        },
+        {
+            "text": "Clean Downloaded Artifacts",
+            "type": "scriptFunction",
+            "functionName": "clean_downloads"
+        },
+        {
+            "text": "Check Script Configuration",
+            "type": "scriptFunction",
+            "functionName": "check_configuration"
+        },
+        {
+            "text": "Return to Main Menu",
+            "type": "return"
+        }
+    ]
+}

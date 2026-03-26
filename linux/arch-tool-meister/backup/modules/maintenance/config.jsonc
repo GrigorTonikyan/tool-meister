@@ -1,0 +1,17 @@
+{
+    // System Maintenance module configuration
+    "name": "maintenance",
+    "description": "System maintenance utilities",
+    "version": "1.0.0",
+    "menuTitle": "System Maintenance",
+    "mainMenuEntry": "System Maintenance",
+    "enabled": true,
+    "settings": {
+        "backupDir": "legacy_backup",
+        "oldConfigFiles": [
+            "vscode_menu.jsonc",
+            "aur_helpers.jsonc",
+            "git_config.jsonc"
+        ]
+    }
+}

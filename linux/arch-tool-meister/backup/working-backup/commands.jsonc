@@ -1,0 +1,83 @@
+{
+    // Command implementations for all menus
+    // This allows decoupling the actual commands from the script itself
+    "systemCommands": {
+        "run_uname_a": {
+            "command": "uname -a",
+            "description": "Display system information"
+        },
+        "run_pwd": {
+            "command": "pwd",
+            "description": "Print working directory"
+        },
+        "run_ls_lh": {
+            "command": "ls -lh",
+            "description": "List files with human-readable sizes"
+        }
+    },
+    "vscodeCommands": {
+        "deploy_vscode_stable": {
+            "description": "Install or update VS Code Stable edition",
+            "actionType": "deploy",
+            "variant": "stable"
+        },
+        "deploy_vscode_insiders": {
+            "description": "Install or update VS Code Insiders edition",
+            "actionType": "deploy",
+            "variant": "insiders"
+        },
+        "deploy_vscode_both": {
+            "description": "Install or update both VS Code editions",
+            "actionType": "deploy",
+            "variant": "both"
+        },
+        "uninstall_vscode_stable": {
+            "description": "Uninstall VS Code Stable edition",
+            "actionType": "uninstall",
+            "variant": "stable"
+        },
+        "uninstall_vscode_insiders": {
+            "description": "Uninstall VS Code Insiders edition",
+            "actionType": "uninstall",
+            "variant": "insiders"
+        },
+        "uninstall_vscode_both": {
+            "description": "Uninstall both VS Code editions",
+            "actionType": "uninstall",
+            "variant": "both"
+        }
+    },
+    "aurHelperCommands": {
+        "install_yay_helper": {
+            "description": "Install Yay AUR helper",
+            "actionType": "install_aur_helper",
+            "repoUrlVar": "YAY_REPO_URL",
+            "cloneDirVar": "YAY_CLONE_DIR"
+        },
+        "install_paru_helper": {
+            "description": "Install Paru AUR helper",
+            "actionType": "install_aur_helper",
+            "repoUrlVar": "PARU_REPO_URL",
+            "cloneDirVar": "PARU_CLONE_DIR"
+        },
+        "install_both_helpers": {
+            "description": "Install both AUR helpers",
+            "subCommands": [
+                "install_yay_helper",
+                "install_paru_helper"
+            ]
+        }
+    },
+    "gitCommands": {
+        "setup_git_user": {
+            "description": "Configure Git user name and email",
+            "actionType": "git_config",
+            "configType": "user"
+        },
+        "show_git_config": {
+            "description": "Display current Git configuration",
+            "actionType": "git_config",
+            "configType": "show"
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+  "title": "== Visual Studio Code Menu (JSON Configured) ==",
+  "options": [
+    {
+      "text": "📦 Install/Update Stable",
+      "type": "scriptFunction",
+      "functionName": "deploy_vscode_stable"
+    },
+    {
+      "text": "🚀 Install/Update Insiders",
+      "type": "scriptFunction",
+      "functionName": "deploy_vscode_insiders"
+    },
+    {
+      "text": "✨ Install/Update Both",
+      "type": "scriptFunction",
+      "functionName": "deploy_vscode_both"
+    },
+    {
+      "text": "🗑️ Uninstall Stable",
+      "type": "scriptFunction",
+      "functionName": "uninstall_vscode_stable"
+    },
+    {
+      "text": "🗑️ Uninstall Insiders",
+      "type": "scriptFunction",
+      "functionName": "uninstall_vscode_insiders"
+    },
+    {
+      "text": "🗑️ Uninstall Both",
+      "type": "scriptFunction",
+      "functionName": "uninstall_vscode_both"
+    },
+    {
+      "text": "⬅️ Back to Main Menu",
+      "type": "return"
+    }
+  ]
+}
