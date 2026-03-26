@@ -25,12 +25,47 @@ export class AppState {
   }
 
   async load() {
-    // TODO: Implement loading state from this.stateFilePath using Bun.file API.
-    console.log('Loading application state...');
+    console.log('Loading application state from:', this.stateFilePath);
+    try {
+      const file = Bun.file(this.stateFilePath);
+      if (await file.exists()) {
+        const content = await file.text();
+        this.state = JSON.parse(content);
+        console.log(`Loaded ${Object.keys(this.state.images).length} images from state.`);
+      } else {
+        console.log('State file does not exist, starting with empty state.');
+      }
+    } catch (error) {
+      console.error('Failed to load state:', error);
+    }
   }
 
   async save() {
-    // TODO: Implement saving state to this.stateFilePath using Bun.write.
-    console.log('Saving application state...');
+    console.log('Saving application state to:', this.stateFilePath);
+    try {
+      const content = JSON.stringify(this.state, null, 2);
+      await Bun.write(this.stateFilePath, content);
+      console.log('State saved successfully.');
+    } catch (error) {
+      console.error('Failed to save state:', error);
+    }
+  }
+
+  addImage(image: ImageState) {
+    this.state.images[image.nasaId] = image;
+  }
+
+  getImage(nasaId: string): ImageState | undefined {
+    return this.state.images[nasaId];
+  }
+
+  getAllImages(): ImageState[] {
+    return Object.values(this.state.images);
+  }
+
+  updateStatus(nasaId: string, status: 'pending' | 'approved' | 'rejected') {
+    if (this.state.images[nasaId]) {
+      this.state.images[nasaId].status = status;
+    }
   }
 }
