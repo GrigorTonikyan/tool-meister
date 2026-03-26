@@ -1,0 +1,34 @@
+version: 2
+updates:
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Node.js dependencies for web-fs-manager
+  - package-ecosystem: "npm"
+    directory: "/web-fs-manager"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    labels:
+      - "dependencies"
+      - "javascript"
+    versioning-strategy: "auto"
+    allow:
+      - dependency-type: "all"
+
+  # PowerShell module dependencies
+  - package-ecosystem: "nuget"
+    directory: "/log-master"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    labels:
+      - "dependencies"
+      - "powershell"

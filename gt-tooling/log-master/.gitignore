@@ -1,0 +1,43 @@
+# Log files and directories
+logs/
+*.log
+*.log.gz
+*.log.archive
+*.log.tmp
+
+# PowerShell specific
+*.psm1.tmp
+*.psd1.tmp
+*.ps1.tmp
+
+# Module specific
+.vscode/
+.vs/
+*.pssproj
+*.psproj
+*.suo
+*.user
+
+# Test results
+TestResults/
+coverage/
+*.coverage
+*.trx
+*.TestResults.xml
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# Archive files
+*.zip
+*.7z
+*.tar
+*.gz
+*.rar
+
+# Backup files
+*.bak
+*.backup
+*~

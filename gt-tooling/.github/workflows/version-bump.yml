@@ -1,0 +1,67 @@
+# Content from shared/workflows/version-bump.yml
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      submodule:
+        description: "Specific submodule (optional)"
+        required: false
+        type: string
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install PowerShell
+        run: |
+          # Install PowerShell
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https software-properties-common
+          wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+
+      - name: Bump Version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $params = @{
+            VersionType = "${{ github.event.inputs.version_type }}"
+          }
+          if ("${{ github.event.inputs.submodule }}") {
+            $params.Add("Submodule", "${{ github.event.inputs.submodule }}")
+          }
+          ./tools/Update-Version.ps1 @params
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          commit-message: "chore: bump version (${{ github.event.inputs.version_type }})"
+          title: "chore: version bump ${{ github.event.inputs.version_type }}"
+          body: |
+            Automated version bump
+            - Type: ${{ github.event.inputs.version_type }}
+            - Submodule: ${{ github.event.inputs.submodule || 'all' }}
+          branch: "chore/version-bump"
+          delete-branch: true

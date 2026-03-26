@@ -1,0 +1,37 @@
+name: Download Logs
+
+on:
+  workflow_run:
+    workflows: ['*']
+    types:
+      - completed
+
+jobs:
+  download-logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install GitHub CLI if not present
+        run: |
+          if ! command -v gh &> /dev/null; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh
+          fi
+
+      - name: Create logs directory
+        run: mkdir -p actions-logs/logs_${{ github.event.workflow_run.id }}
+
+      - name: Download workflow logs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run view ${{ github.event.workflow_run.id }} --log > actions-logs/logs_${{ github.event.workflow_run.id }}/workflow_log.txt || echo "Logs unavailable"
+
+      - name: Commit and push logs
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add actions-logs/
+          git commit -m "chore: add workflow logs for run ${{ github.event.workflow_run.id }}" || echo "No changes to commit"
+          git push

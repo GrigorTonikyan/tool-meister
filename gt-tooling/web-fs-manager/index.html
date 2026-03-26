@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Structure Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+        #app {
+            display: flex;
+            height: 100vh;
+        }
+        #tree-container {
+            flex: 2;
+            padding: 20px;
+            overflow: auto;
+        }
+        #info-panel {
+            flex: 1;
+            padding: 20px;
+            background-color: #252526;
+            border-left: 1px solid #333;
+            overflow: auto;
+        }
+        .node circle {
+            fill: #4e4e4e;
+            stroke: #666;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 12px;
+            fill: #d4d4d4;
+        }
+        .link {
+            fill: none;
+            stroke: #555;
+            stroke-width: 1px;
+        }
+        .selected circle {
+            fill: #0078d4;
+        }
+        .file-info {
+            background-color: #2d2d2d;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .file-info h3 {
+            margin: 0 0 10px 0;
+            color: #0078d4;
+        }
+        .status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #0078d4;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .status.visible {
+            opacity: 1;
+        }
+        #project-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .btn {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #106ebe;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+        }
+        .modal.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #252526;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #d4d4d4;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .directory-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .directory-item {
+            padding: 8px;
+            margin: 4px 0;
+            background-color: #2d2d2d;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .directory-item:hover {
+            background-color: #3d3d3d;
+        }
+        .directory-item.selected {
+            background-color: #0078d4;
+        }
+        .directory-item i {
+            margin-right: 8px;
+        }
+        .directory-item.parent {
+            color: #0078d4;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .breadcrumb-item {
+            color: #0078d4;
+            cursor: pointer;
+            margin: 4px;
+        }
+        .breadcrumb-separator {
+            margin: 0 8px;
+            color: #666;
+        }
+        .recent-projects {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        .recent-projects h3 {
+            margin-bottom: 12px;
+            color: #0078d4;
+        }
+        #current-project {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            background-color: #2d2d2d;
+            border-radius: 4px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="current-project">No project selected</div>
+    <div id="project-selector">
+        <button class="btn" onclick="showProjectSelector()">Select Project</button>
+    </div>
+    <div id="app">
+        <div id="tree-container"></div>
+        <div id="info-panel">
+            <h2>File Information</h2>
+            <div id="file-details"></div>
+        </div>
+    </div>
+    <div id="status" class="status">Structure Updated</div>
+    
+    <!-- Project Selector Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Select Project Directory</h2>
+                <button class="modal-close" onclick="hideProjectSelector()">&times;</button>
+            </div>
+            <div class="breadcrumb" id="path-breadcrumb"></div>
+            <div class="directory-actions">
+                <button class="btn" onclick="selectCurrentDirectory()" id="select-dir-btn">
+                    Select Current Directory
+                </button>
+            </div>
+            <ul class="directory-list" id="directory-list"></ul>
+            <div class="recent-projects">
+                <h3>Recent Projects</h3>
+                <ul class="directory-list" id="recent-projects-list"></ul>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

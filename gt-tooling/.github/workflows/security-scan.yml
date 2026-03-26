@@ -1,0 +1,120 @@
+# Content from shared/workflows/security-scan.yml
+name: Security Scan
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install PowerShell and Dependencies
+        run: |
+          # Install PowerShell
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https software-properties-common
+          wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+          
+          # Install PSScriptAnalyzer
+          pwsh -Command 'Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser'
+
+      - name: Run PowerShell Security Scan
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path ./log-master -Recurse -Settings PSGallery
+          
+          # Convert results to JSON with increased depth
+          $jsonResults = $results | ConvertTo-Json -Depth 10
+          $jsonResults | Out-File ps-security-results.json
+          
+          # Create SARIF output
+          $sarifResults = @{
+            '$schema' = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
+            version = "2.1.0"
+            runs = @(
+              @{
+                tool = @{
+                  driver = @{
+                    name = "PSScriptAnalyzer"
+                    version = (Get-Module PSScriptAnalyzer).Version.ToString()
+                    rules = @()
+                  }
+                }
+                results = @()
+              }
+            )
+          }
+          
+          foreach ($result in $results) {
+            $sarifResults.runs[0].results += @{
+              level = if ($result.Severity -eq 'Error') { 'error' } elseif ($result.Severity -eq 'Warning') { 'warning' } else { 'note' }
+              message = @{
+                text = $result.Message
+              }
+              locations = @(
+                @{
+                  physicalLocation = @{
+                    artifactLocation = @{
+                      uri = $result.ScriptPath.Replace('\', '/').Replace((Get-Location), '').TrimStart('/')
+                    }
+                    region = @{
+                      startLine = $result.Line
+                      startColumn = $result.Column
+                    }
+                  }
+                }
+              )
+              ruleId = $result.RuleName
+            }
+          }
+          
+          $sarifResults | ConvertTo-Json -Depth 10 | Out-File ps-security-results.sarif
+          
+          # Output findings to console
+          Write-Host "PSScriptAnalyzer Results:"
+          $results | Format-Table -Property Severity, RuleName, Line, Message -AutoSize
+          
+          # Fail only on errors, not warnings
+          if ($results.Severity -contains 'Error') {
+            Write-Error "PSScriptAnalyzer found errors. Check ps-security-results.json for details."
+            exit 1
+          }
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: ps-security-results.sarif
+          category: PSScriptAnalyzer
+
+      - name: Install Snyk
+        run: |
+          sudo npm install -g snyk
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Node.js Security Scan
+        run: |
+          cd web-fs-manager
+          npm ci
+          snyk test --all-projects
