@@ -1,0 +1,11 @@
+version: "0.2"
+ignorePaths: []
+allowCompoundWords: true
+dictionaryDefinitions: []
+dictionaries: []
+words:
+  - rfind
+  - shlex
+  - Tauri
+ignoreWords: []
+import: []
